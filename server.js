@@ -92,7 +92,7 @@ async function groqChatCompletion(messages) {
     let data = null;
     try {
       data = JSON.parse(rawText);
-    } catch {}
+    } catch { }
 
     return { ok: resp.ok, status: resp.status, data, rawText };
   } catch (err) {
@@ -110,6 +110,11 @@ app.get("/health", (req, res) => {
 app.get("/whatsapp-link", (req, res) => {
   // frontend can use this if you want the number stored server-side
   res.json({ number: WHATSAPP_NUMBER });
+});
+
+app.get("/wakeup", (req, res) => {
+  console.log("Wakeup signal received");
+  res.json({ status: "awake" });
 });
 
 app.post("/chat", async (req, res) => {
