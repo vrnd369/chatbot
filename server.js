@@ -12,8 +12,9 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      process.env.RENDER_FRONTEND_URL || "https://YOUR-FRONTEND-DOMAIN.onrender.com",
-      "https://vrnd.tech"
+      process.env.RENDER_FRONTEND_URL || "https://chatbot-up4o.onrender.com",
+      "https://vrnd.tech",
+      "https://chatbot-up4o.onrender.com"
     ]
   })
 );
