@@ -1,10 +1,16 @@
 import express from "express";
 import cors from "cors";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { FAQ } from "./FAQ.js";
 import "dotenv/config";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const FRONTEND_BUILD_DIR = path.resolve(__dirname, "..", "build");
 
 app.use(express.json());
 
@@ -14,7 +20,8 @@ app.use(
       "http://localhost:3000",
       process.env.RENDER_FRONTEND_URL || "https://chatbot-up4o.onrender.com",
       "https://vrnd.tech",
-      "https://chatbot-up4o.onrender.com"
+      "https://chatbot-up4o.onrender.com",
+      "https://www.vrnd.tech"
     ]
   })
 );
@@ -140,7 +147,7 @@ app.post("/chat", async (req, res) => {
       if (result.status === 429) {
         return res.status(200).json({
           reply:
-            "I’m getting too many requests right now (rate limit). Please try again in a minute, or tap ‘WhatsApp Support’ to talk to a human."
+            "I'm getting too many requests right now (rate limit). Please try again in a minute, or tap 'WhatsApp Support' to talk to a human."
         });
       }
       if (result.status === 401) {
@@ -151,7 +158,7 @@ app.post("/chat", async (req, res) => {
       if (result.status === 408) {
         return res.status(200).json({
           reply:
-            "The AI took too long to respond. Please try again, or tap ‘WhatsApp Support’ to talk to a human."
+            "The AI took too long to respond. Please try again, or tap 'WhatsApp Support' to talk to a human."
         });
       }
 
@@ -169,6 +176,48 @@ app.post("/chat", async (req, res) => {
     return res.status(500).json({ error: "Server error", details: err?.message || String(err) });
   }
 });
+
+// Serve frontend build (if present) with efficient cache headers.
+if (fs.existsSync(FRONTEND_BUILD_DIR)) {
+  app.use(
+    express.static(FRONTEND_BUILD_DIR, {
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith(".html")) {
+          // HTML should revalidate so new deployments are picked up quickly.
+          res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+          return;
+        }
+
+        // Long-lived immutable cache for versioned static assets.
+        if (
+          /\.(js|css|png|jpg|jpeg|gif|webp|svg|ico|mp4|webm|woff|woff2|ttf|otf|map)$/i.test(
+            filePath
+          )
+        ) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+          return;
+        }
+
+        res.setHeader("Cache-Control", "public, max-age=86400");
+      },
+    })
+  );
+
+  app.get("*", (req, res, next) => {
+    // Keep API endpoints handled by routes above.
+    if (
+      req.path.startsWith("/chat") ||
+      req.path.startsWith("/health") ||
+      req.path.startsWith("/wakeup") ||
+      req.path.startsWith("/whatsapp-link")
+    ) {
+      return next();
+    }
+
+    res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+    return res.sendFile(path.join(FRONTEND_BUILD_DIR, "index.html"));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`AI support backend running on port ${PORT}`);
