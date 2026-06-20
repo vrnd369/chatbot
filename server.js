@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -177,6 +178,49 @@ app.post("/chat", async (req, res) => {
   }
 });
 
+app.post("/contact", async (req, res) => {
+  try {
+    const { name, email, phone, website, requirements } = req.body;
+
+    if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
+      console.error("Missing SMTP credentials in environment variables.");
+      return res.status(500).json({ success: false, message: "Server configuration error" });
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.SMTP_EMAIL,
+      to: process.env.SMTP_EMAIL,
+      replyTo: email,
+      subject: `New Contact Form Submission from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nWebsite: ${website || "N/A"}\nRequirements:\n${requirements}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #6366f1;">New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Website:</strong> ${website || "N/A"}</p>
+          <p><strong>Requirements:</strong></p>
+          <p style="background: #f8fafc; padding: 15px; border-radius: 8px;">${requirements.replace(/\n/g, '<br/>')}</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return res.status(200).json({ success: true, message: "Email sent successfully" });
+  } catch (error) {
+    console.error("Nodemailer error:", error);
+    return res.status(500).json({ success: false, message: "Failed to send email", error: String(error) });
+  }
+});
 // Serve frontend build (if present) with efficient cache headers.
 if (fs.existsSync(FRONTEND_BUILD_DIR)) {
   app.use(
@@ -209,7 +253,8 @@ if (fs.existsSync(FRONTEND_BUILD_DIR)) {
       req.path.startsWith("/chat") ||
       req.path.startsWith("/health") ||
       req.path.startsWith("/wakeup") ||
-      req.path.startsWith("/whatsapp-link")
+      req.path.startsWith("/whatsapp-link") ||
+      req.path.startsWith("/contact")
     ) {
       return next();
     }
