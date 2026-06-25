@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { FAQ } from "./FAQ.js";
-import nodemailer from "nodemailer";
 import dns from "dns";
 import "dotenv/config";
 
@@ -182,55 +181,7 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-// -------- Email sending endpoint (Nodemailer) --------
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT || "465", 10),
-  secure: true, // true for 465, false for other ports
-  family: 4, // Force IPv4 explicitly to fix Render ENETUNREACH
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
 
-app.post("/send-email", async (req, res) => {
-  const { name, email, phone, website, requirements } = req.body;
-
-  if (!name || !email || !requirements) {
-    return res.status(400).json({ error: "Name, email, and requirements are required." });
-  }
-
-  const mailOptions = {
-    from: `"${name}" <${process.env.SMTP_USER}>`,
-    replyTo: email,
-    to: process.env.SMTP_USER,
-    subject: `New Lead: Website Inquiry from ${name}`,
-    html: `
-      <h2>New Contact Form Submission</h2>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Phone:</strong> ${phone || "N/A"}</p>
-      <p><strong>Website:</strong> ${website || "N/A"}</p>
-      <p><strong>Requirements/Message:</strong></p>
-      <blockquote style="background-color: #f9f9f9; padding: 15px; border-left: 5px solid #ccc;">
-        ${requirements.replace(/\n/g, "<br>")}
-      </blockquote>
-    `,
-  };
-
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Message sent: %s", info.messageId);
-    return res.status(200).json({ success: true, message: "Email sent successfully!" });
-  } catch (error) {
-    console.error("Error sending email:", error);
-    return res.status(500).json({ 
-      success: false, 
-      error: "Failed to send email. SMTP Error: " + (error.message || "Unknown error")
-    });
-  }
-});
 
 // Serve frontend build (if present) with efficient cache headers.
 if (fs.existsSync(FRONTEND_BUILD_DIR)) {
