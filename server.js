@@ -220,7 +220,10 @@ app.post("/send-email", async (req, res) => {
     return res.status(200).json({ success: true, message: "Email sent successfully!" });
   } catch (error) {
     console.error("Error sending email:", error);
-    return res.status(500).json({ success: false, error: "Failed to send email." });
+    return res.status(500).json({ 
+      success: false, 
+      error: "Failed to send email. SMTP Error: " + (error.message || "Unknown error")
+    });
   }
 });
 
@@ -256,7 +259,8 @@ if (fs.existsSync(FRONTEND_BUILD_DIR)) {
       req.path.startsWith("/chat") ||
       req.path.startsWith("/health") ||
       req.path.startsWith("/wakeup") ||
-      req.path.startsWith("/whatsapp-link")
+      req.path.startsWith("/whatsapp-link") ||
+      req.path.startsWith("/send-email")
     ) {
       return next();
     }
