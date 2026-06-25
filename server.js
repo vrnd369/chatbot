@@ -181,8 +181,8 @@ app.post("/chat", async (req, res) => {
 // -------- Email sending endpoint (Nodemailer) --------
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT || "465", 10),
-  secure: true, // true for 465, false for other ports
+  port: parseInt(process.env.SMTP_PORT || "587", 10),
+  secure: false, // use STARTTLS for port 587
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -259,8 +259,7 @@ if (fs.existsSync(FRONTEND_BUILD_DIR)) {
       req.path.startsWith("/chat") ||
       req.path.startsWith("/health") ||
       req.path.startsWith("/wakeup") ||
-      req.path.startsWith("/whatsapp-link") ||
-      req.path.startsWith("/send-email")
+      req.path.startsWith("/whatsapp-link")
     ) {
       return next();
     }
