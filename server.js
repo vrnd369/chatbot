@@ -5,7 +5,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { FAQ } from "./FAQ.js";
 import nodemailer from "nodemailer";
+import dns from "dns";
 import "dotenv/config";
+
+// Force Node.js to use IPv4 instead of IPv6 (fixes ENETUNREACH errors on Render)
+dns.setDefaultResultOrder("ipv4first");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
