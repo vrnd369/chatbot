@@ -78,5 +78,26 @@ export const FAQ = [
   {
     q: "How can I contact human support at vrnd.tech?",
     a: "If you need human assistance, you can request a human handoff through chat or contact vrnd.tech (VRND BUSINESS SOLUTION) via the support email."
+  },
+  {
+    q: "Who are some of vrnd.tech's clients or brands you have worked with?",
+    a: "vrnd.tech (VRND BUSINESS SOLUTION) is proud to have worked with esteemed clients across real estate, e-commerce, manufacturing, retail, and tech. Notable clients include Yards & Acres Real Estate (https://www.yardsandacers.com/), Lithika Collections (https://lithikacollections.in/), VR Developers (https://vignahara.in/), Groww Paints (https://growwpaints.com/), DataAnalyzer Pro, Parwah Industries, Banat, Vinsa, Skyon Infra Developers, and Protek Consult."
+  },
+  {
+    q: "Has vrnd.tech worked with Yards and Acres (Yards & Acres)?",
+    a: "Yes. Yards & Acres Real Estate (https://www.yardsandacers.com/) is a valued client of vrnd.tech. We built and optimized their digital web presence to showcase their real estate portfolio and attract prospective buyers."
+  },
+  {
+    q: "Has vrnd.tech worked with Lithika Collections?",
+    a: "Yes. Lithika Collections (https://lithikacollections.in/) is one of vrnd.tech's top clients. We developed their modern, luxury fashion e-commerce experience to highlight their traditional attire and jewelry."
+  },
+  {
+    q: "Has vrnd.tech worked with VR Developers (Vignahara)?",
+    a: "Yes. VR Developers (https://vignahara.in/) is a proud client of vrnd.tech. We deliver digital solutions and web development to present their property developments with modern design and fast performance."
+  },
+  {
+    q: "Has vrnd.tech worked with Groww Paints?",
+    a: "Yes. Groww Paints Private Limited (https://growwpaints.com/) is an esteemed client of vrnd.tech. We built digital solutions to effectively showcase their wall paint offerings and brand identity."
   }
 ];
+
